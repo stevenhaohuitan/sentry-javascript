@@ -113,13 +113,26 @@ export function wrap(
     }
   } catch (_oO) {} // tslint:disable-line:no-empty
 
+  fn.prototype = fn.prototype || {};
   sentryWrapped.prototype = fn.prototype;
-  fn.__sentry_wrapped__ = sentryWrapped;
+
+  Object.defineProperty(fn, '__sentry_wrapped__', {
+    value: sentryWrapped,
+    enumerable: false
+  });
 
   // Signal that this function has been wrapped/filled already
   // for both debugging and to prevent it to being wrapped/filled twice
-  sentryWrapped.__sentry__ = true;
-  sentryWrapped.__sentry_original__ = fn;
+  Object.defineProperties(sentryWrapped, {
+    __sentry__: {
+      value: true,
+      enumerable: false
+    },
+    __sentry_original__: {
+      value: fn,
+      enumerable: false
+    }
+  });
 
   return sentryWrapped;
 }
